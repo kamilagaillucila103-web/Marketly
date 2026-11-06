@@ -1,0 +1,29 @@
+{% extends "market/base.html" %}
+{% block content %}
+<h1>Lease: {{ object.stall.code }} — <a href="{% url 'market:vendor_detail' object.vendor.pk %}">{{ object.vendor }}</a></h1>
+<div class="cards">
+  <div class="card">Stall<b>{{ object.stall.code }}</b>{{ object.stall.section }}</div>
+  <div class="card">Rate / month<b>PHP {{ object.monthly_rate }}</b>Due every {{ object.due_day }}th</div>
+  <div class="card">Total paid<b>PHP {{ object.total_paid }}</b>of PHP {{ object.total_due }} due</div>
+  <div class="card">Balance<b {% if object.balance > 0 %}class="danger"{% endif %}>PHP {{ object.balance }}</b></div>
+</div>
+<p>Start: {{ object.start_date }} | End: {{ object.end_date|default:"open" }} | Deposit: PHP {{ object.deposit }} |
+   Status: {{ object.is_active|yesno:"Active,Ended" }}</p>
+<p>
+  {% if object.is_active %}<a class="btn" href="{% url 'market:payment_create' %}?lease={{ object.pk }}">Collect payment</a>{% endif %}
+  <a class="btn" href="{% url 'market:lease_update' object.pk %}">Edit lease</a>
+  <a class="btn" href="{% url 'market:lease_delete' object.pk %}" style="background:#b3261e">Delete lease</a>
+</p>
+<h2>Payment history</h2>
+<table>
+  <tr><th>OR #</th><th>Date</th><th>Method</th><th>Amount</th><th>Collector</th><th>Actions</th></tr>
+  {% for p in object.payments.all %}
+  <tr><td><a href="{% url 'market:receipt' p.pk %}">{{ p.or_number }}</a></td><td>{{ p.date_paid }}</td>
+      <td>{{ p.get_method_display }}</td><td>PHP {{ p.amount }}</td><td>{{ p.collected_by.username }}</td>
+      <td>
+        <a href="{% url 'market:payment_update' p.pk %}">Edit</a> |
+        <a href="{% url 'market:payment_delete' p.pk %}" style="color:#b3261e">Delete</a>
+      </td></tr>
+  {% empty %}<tr><td colspan="6">No payments yet.</td></tr>{% endfor %}
+</table>
+{% endblock %}

@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Save Data Securely</title>
+</head>
+<body>
+    <h2>Enter Sensitive Data</h2>
+    <form method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Save and Encrypt</button>
+    </form>
+</body>
+</html>

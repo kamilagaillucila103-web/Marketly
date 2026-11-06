@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}Vendor Portal{% endblock %} - Marketly</title>
+<style>
+  :root { --green:#1f6b4f; --green-dark:#17523d; --ink:#0f3b2c; --muted:#5f7a70; --line:#e3ebe7; --bg:#f6f8f7; --lime:#d8f24a; --yellow:#f7d94c; }
+  * { box-sizing: border-box; }
+  body { margin:0; font-family: "Segoe UI", Roboto, Arial, sans-serif; background:var(--bg); color:var(--ink); display:flex; min-height:100vh; }
+  .sidebar { width:300px; background:var(--green); color:#fff; padding:32px 40px; flex-shrink:0; }
+  .brand { display:flex; align-items:center; gap:14px; font-size:28px; font-weight:800; margin-bottom:48px; }
+  .brand .logo { background:var(--lime); color:var(--green-dark); width:48px; height:48px; border-radius:12px; display:grid; place-items:center; font-size:26px; }
+  .side-label { font-size:13px; letter-spacing:.15em; opacity:.7; margin-bottom:16px; }
+  .sidebar a { display:block; color:#fff; text-decoration:none; padding:10px 14px; margin:0 -14px 4px; border-radius:10px; font-size:18px; }
+  .sidebar a:hover { background:rgba(255,255,255,.1); }
+  .sidebar a.active { background:rgba(255,255,255,.18); font-weight:600; }
+  .main { flex:1; min-width:0; }
+  .topbar { background:#fff; border-bottom:1px solid var(--line); padding:20px 48px; display:flex; justify-content:space-between; align-items:center; }
+  .topbar .date { color:var(--muted); }
+  .user { display:flex; align-items:center; gap:14px; }
+  .avatar { width:50px; height:50px; border-radius:50%; background:var(--yellow); display:grid; place-items:center; font-weight:800; }
+  .user .nm { font-weight:700; font-size:18px; } .user .role { color:var(--muted); font-size:15px; }
+  .logout { border:1px solid var(--line); border-radius:10px; padding:12px 20px; color:var(--green); font-weight:600; text-decoration:none; }
+  .content { padding:48px; max-width:1300px; }
+  .eyebrow { color:var(--green); font-weight:800; letter-spacing:.15em; font-size:14px; }
+  h1 { font-size:44px; margin:8px 0; letter-spacing:-1px; }
+  .sub { color:var(--muted); font-size:19px; margin:0 0 32px; }
+  .card { background:#fff; border:1px solid var(--line); border-radius:20px; padding:28px 32px; margin-bottom:24px; }
+  .card h2 { margin:0 0 20px; font-size:22px; }
+  .grid { display:grid; gap:24px; }
+  .g3 { grid-template-columns: repeat(3, 1fr); }
+  .g2 { grid-template-columns: 1fr 1fr; align-items:start; }
+  .stat { margin-bottom:0; }
+  .stat .lbl { color:var(--muted); font-size:13px; letter-spacing:.1em; font-weight:700; text-transform:uppercase; }
+  .stat .val { font-size:32px; font-weight:800; margin-top:8px; }
+  .stat .note { color:var(--muted); font-size:14px; margin-top:4px; }
+  .stat.alert .val { color:#b42318; } .stat.ok .val { color:var(--green); }
+  table { width:100%; border-collapse:collapse; }
+  th { text-align:left; color:var(--muted); font-size:13px; letter-spacing:.1em; padding:10px 8px; border-bottom:1px solid var(--line); text-transform:uppercase; }
+  td { padding:14px 8px; border-bottom:1px solid var(--line); }
+  .badge { display:inline-block; padding:5px 14px; border-radius:999px; font-weight:700; font-size:14px; }
+  .b-pending { background:#fdf3c0; color:#7a5d00; } .b-verified { background:#d7f3e3; color:#13663f; } .b-rejected { background:#fde0de; color:#a3241b; }
+  .info-row { display:flex; justify-content:space-between; gap:16px; padding:10px 0; border-bottom:1px solid var(--line); }
+  .info-row:last-child { border:0; } .info-row span:first-child { color:var(--muted); }
+  .msg { padding:14px 18px; border-radius:12px; margin-bottom:20px; background:#d7f3e3; color:#13663f; }
+  .msg.error { background:#fde0de; color:#a3241b; } .msg.warning { background:#fdf3c0; color:#7a5d00; }
+  label { display:block; font-size:18px; margin:18px 0 8px; }
+  form input:not([type=file]):not([type=hidden]), form select { width:100%; padding:16px; font-size:17px; border:1px solid var(--line); border-radius:14px; background:#fff; color:var(--ink); }
+  form input[type=file] { width:100%; padding:16px; border:1px solid var(--line); border-radius:14px; font-size:16px; background:#fff; }
+  .btn { background:var(--green); color:#fff; border:0; padding:16px 28px; border-radius:14px; font-size:17px; font-weight:700; cursor:pointer; margin-top:24px; }
+  .btn:hover { background:var(--green-dark); }
+  .errorlist { color:#a3241b; list-style:none; padding:0; margin:6px 0 0; font-size:14px; }
+  .empty { color:var(--muted); padding:20px 0; }
+  .channel { padding:14px 0; border-bottom:1px solid var(--line); } .channel:last-child { border:0; }
+  .channel .m { font-weight:700; font-size:18px; } .channel .d { color:var(--muted); margin-top:4px; white-space:pre-line; }
+  .reason { color:#a3241b; font-size:13px; margin-top:4px; }
+  @media (max-width: 1000px) { .sidebar { display:none; } .g3, .g2 { grid-template-columns:1fr; } .content, .topbar { padding:24px; } }
+</style>
+</head>
+<body>
+<aside class="sidebar">
+  <div class="brand"><div class="logo">M</div> Marketly</div>
+  <div class="side-label">VENDOR</div>
+  <a href="{% url 'market:portal' %}" class="{% block nav_account %}{% endblock %}">My account</a>
+  <a href="{% url 'market:vendor_payment' %}" class="{% block nav_payment %}{% endblock %}">Payment</a>
+</aside>
+<div class="main">
+  <header class="topbar">
+    <div class="date">{% now "l, F j, Y" %}</div>
+    <div class="user">
+      <div class="avatar">{{ request.user.username|first|upper }}</div>
+      <div><div class="nm">{{ request.user.username }}</div><div class="role">Vendor</div></div>
+      <a class="logout" href="{% url 'market:vendor_logout' %}">Log out</a>
+    </div>
+  </header>
+  <div class="content">
+    {% if messages %}{% for m in messages %}<div class="msg {{ m.tags }}">{{ m }}</div>{% endfor %}{% endif %}
+    {% block content %}{% endblock %}
+  </div>
+</div>
+</body>
+</html>

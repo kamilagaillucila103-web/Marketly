@@ -1,0 +1,16 @@
+{% extends 'market/base.html' %}
+{% block title %}Vendor signups · Marketly{% endblock %}
+{% block content %}
+<div class="page-head"><div><div class="eyebrow">Workspace</div><h1>Vendor signup requests</h1><p>Review vendor registrations before granting account access.</p></div><span class="badge yellow">{{ pending_count }} pending</span></div>
+<div class="card"><div class="table-wrap"><table>
+<tr><th>Applicant</th><th>Business</th><th>Email</th><th>Date submitted</th><th>Status</th><th>Action</th></tr>
+{% for s in signups %}
+<tr>
+  <td><strong>{{ s.full_name }}</strong><br><small class="muted">@{{ s.user.username|default:"No linked account" }}</small></td>
+  <td>{{ s.business_name|default:"-" }}</td><td>{{ s.email }}</td><td>{{ s.requested_at|date:'M j, Y' }}</td>
+  <td>{% if s.status == 'PENDING' %}<span class="badge yellow">Pending</span>{% elif s.status == 'APPROVED' %}<span class="badge">Approved</span>{% else %}<span class="badge red">Rejected</span>{% endif %}</td>
+  <td>{% if s.status == 'PENDING' %}{% if s.user %}<a class="button" href="{% url 'market:signup_approve' s.pk %}">Review</a>{% else %}<span class="muted">Ask applicant to register again</span>{% endif %} <form method="post" action="{% url 'market:signup_reject' s.pk %}" style="display:inline" onsubmit="return confirm('Reject this registration?')">{% csrf_token %}<button class="button ghost" type="submit">Reject</button></form>{% else %}<span class="muted">Reviewed</span>{% endif %}</td>
+</tr>
+{% empty %}<tr><td colspan="6" class="empty">No vendor signup requests yet.</td></tr>{% endfor %}
+</table></div></div>
+{% endblock %}

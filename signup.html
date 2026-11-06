@@ -1,0 +1,21 @@
+{% extends 'market/base.html' %}
+{% block title %}Vendor sign up · Marketly{% endblock %}
+{% block public_content %}
+<div class="login-wrap"><div class="login-card">
+  <div class="mark">M</div>
+  <h1>Vendor registration</h1>
+  <p>Submit your details to request a Marketly vendor account. Your account will be available after administrator approval.</p>
+  <form method="post" novalidate>{% csrf_token %}
+    {% for field in form %}
+      <div class="form-row">
+        {{ field.label_tag }}{{ field }}
+        {% if field.help_text %}<small class="muted">{{ field.help_text }}</small>{% endif %}
+        {% for error in field.errors %}<div class="errorlist">{{ error }}</div>{% endfor %}
+      </div>
+    {% endfor %}
+    {% for error in form.non_field_errors %}<div class="errorlist">{{ error }}</div>{% endfor %}
+    <button class="button yellow" type="submit">Submit registration</button>
+  </form>
+  <p>Already have an account? <a style="color:var(--green);font-weight:700" href="{% url 'login' %}">Sign in</a></p>
+</div></div>
+{% endblock %}

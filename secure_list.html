@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Hidden Data</title>
+</head>
+<body>
+    <h2>List of Encrypted Data</h2>
+    <a href="{% url 'market:secure_add' %}">+ Add New Data</a>
+    <ul>
+        {% for item in items %}
+            <li><strong>ID {{ item.id }}:</strong> {{ item.original_text }}</li>
+        {% empty %}
+            <li>No encrypted data available.</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

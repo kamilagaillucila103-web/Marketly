@@ -1,0 +1,83 @@
+{% extends "market/vendor_base.html" %}
+{% block title %}Payment{% endblock %}
+{% block nav_payment %}active{% endblock %}
+
+{% block content %}
+<div class="eyebrow">VENDOR PORTAL</div>
+<h1>Payment</h1>
+<p class="sub"></p>Check where to pay and upload your receipt</p>
+
+<div class="grid g3" style="margin-bottom:24px;">
+  <div class="card stat {% if summary.balance > 0 %}alert{% else %}ok{% endif %}">
+    <div class="lbl">Balance</div>
+    <div class="val">₱{{ summary.balance|floatformat:2 }}</div>
+    <div class="note">Remaining balance</div>
+  </div>
+  <div class="card stat">
+    <div class="lbl">Next due date</div>
+    <div class="val">{% if summary.next_due %}{{ summary.next_due|date:"M j, Y" }}{% else %}—{% endif %}</div>
+  </div>
+  <div class="card stat">
+    <div class="lbl">Total Paid</div>
+    <div class="val">₱{{ summary.total_paid|floatformat:2 }}</div>
+    <div class="note">Only verified counts</div>
+  </div>
+</div>
+
+<div class="grid g2">
+  <div>
+    <div class="card">
+      <h2>Payment Channels</h2>
+      {% for c in channels %}
+        <div class="channel">
+          <div class="m">{{ c.get_method_display }}</div>
+          {% if c.account_name or c.account_number %}
+            <div class="d">{% if c.account_name %}{{ c.account_name }}{% endif %}{% if c.account_name and c.account_number %} · {% endif %}{{ c.account_number }}</div>
+          {% endif %}
+          {% if c.instructions %}<div class="d">{{ c.instructions }}</div>{% endif %}
+        </div>
+      {% empty %}
+        <div class="empty">No payment channels available.</div>
+      {% endfor %}
+    </div>
+
+    <div class="card">
+      <h2>Upload Payment Verification</h2>
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+        {% for field in form.visible_fields %}
+          <label for="{{ field.id_for_label }}">{{ field.label }}:</label>
+          {{ field }}
+          {{ field.errors }}
+        {% endfor %}
+        <button type="submit" class="btn">Submit Receipt</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Payment History</h2>
+    {% if payments %}
+    <table>
+      <thead><tr><th>Date</th><th>Amount</th><th>Type</th><th>Status</th></tr></thead>
+      <tbody>
+      {% for p in payments %}
+        <tr>
+          <td>{{ p.created_at|date:"M j, Y" }}</td>
+          <td>₱{{ p.amount|floatformat:2 }}</td>
+          <td>{{ p.get_payment_type_display }}</td>
+          <td>
+            <span class="badge b-{{ p.status }}">{{ p.get_status_display }}</span>
+            {% if p.status == "rejected" and p.rejection_reason %}<div class="reason">{{ p.rejection_reason }}</div>{% endif %}
+          </td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+      <div class="empty">No submissions found.</div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

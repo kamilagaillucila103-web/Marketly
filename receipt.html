@@ -1,0 +1,21 @@
+{% extends "market/base.html" %}
+{% block content %}
+<div class="card" style="max-width:420px;margin:auto">
+  <h2 style="text-align:center">Official Receipt</h2>
+  <p><b>OR #:</b> {{ object.or_number }}<br>
+     <b>Date:</b> {{ object.date_paid }}<br>
+     <b>Vendor:</b> {{ object.lease.vendor }}<br>
+     <b>Stall:</b> {{ object.lease.stall.code }} ({{ object.lease.stall.section }})<br>
+     <b>Method:</b> {{ object.get_method_display }}</p>
+  <h1 style="text-align:center">₱{{ object.amount|floatformat:2 }}</h1>
+  <p>Remaining balance: ₱{{ object.lease.balance|floatformat:2 }}</p>
+  <p>Collected by: {{ object.collected_by.get_full_name|default:object.collected_by.username }}</p>
+  <p class="noprint">
+    <button class="btn" onclick="window.print()">Print</button>
+    {% if user.is_staff %}
+    <a class="btn" href="{% url 'market:payment_update' object.pk %}">Edit</a>
+    <a class="btn" href="{% url 'market:payment_delete' object.pk %}" style="background:#b3261e">Delete</a>
+    {% endif %}
+  </p>
+</div>
+{% endblock %}

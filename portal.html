@@ -1,0 +1,51 @@
+{% extends "market/base.html" %}
+{% block content %}
+{% if not vendor %}
+<div class="card" style="max-width:520px;margin:2rem auto">
+  <h2>No vendor record linked</h2>
+  <p>Your login is not linked to a vendor account yet. Please contact the market administrator.</p>
+</div>
+{% else %}
+<h1>Welcome, {{ vendor.first_name }}</h1>
+<p>{% if vendor.business_name %}<b>{{ vendor.business_name }}</b> | {% endif %}{{ vendor.contact_number }}</p>
+
+<div class="cards">
+  <div class="card">My balance<b {% if balance > 0 %}class="danger"{% endif %}>₱{{ balance }}</b>{% if balance > 0 %}Please settle at the market office{% else %}All paid up{% endif %}</div>
+  <div class="card">Total paid<b>₱{{ total_paid }}</b>of ₱{{ total_due }} billed</div>
+  <div class="card">Active stalls<b>{{ active_count }}</b></div>
+  <div class="card">Last payment method<b>{{ last_payment.get_method_display|default:"-" }}</b>{% if last_payment %}₱{{ last_payment.amount }} on {{ last_payment.date_paid }}{% endif %}</div>
+</div>
+
+<h2>My stalls</h2>
+<table>
+  <tr><th>Stall</th><th>Monthly rate</th><th>Due day</th><th>Paid</th><th>Balance</th><th>Status</th></tr>
+  {% for l in leases %}
+  <tr>
+    <td>{{ l.stall.code }} ({{ l.stall.section }})</td><td>₱{{ l.monthly_rate }}</td><td>Every {{ l.due_day }}th</td>
+    <td>₱{{ l.total_paid }}</td><td {% if l.balance > 0 %}class="danger"{% endif %}>₱{{ l.balance }}</td>
+    <td>{{ l.is_active|yesno:"Active,Ended" }}</td>
+  </tr>
+  {% empty %}<tr><td colspan="6">No stalls assigned yet.</td></tr>{% endfor %}
+</table>
+
+<h2>Payments by method</h2>
+<table>
+  <tr><th>Method</th><th>No. of payments</th><th>Total</th></tr>
+  {% for m in by_method %}
+  <tr><td>{{ m.label }}</td><td>{{ m.count }}</td><td>₱{{ m.total }}</td></tr>
+  {% empty %}<tr><td colspan="3">No payments yet.</td></tr>{% endfor %}
+</table>
+
+<h2>My payment history</h2>
+<table>
+  <tr><th>OR #</th><th>Date</th><th>Stall</th><th>Method</th><th>Amount</th><th></th></tr>
+  {% for p in payments %}
+  <tr>
+    <td>{{ p.or_number }}</td><td>{{ p.date_paid }}</td><td>{{ p.lease.stall.code }}</td>
+    <td>{{ p.get_method_display }}</td><td>₱{{ p.amount }}</td>
+    <td><a href="{% url 'market:receipt' p.pk %}">View receipt</a></td>
+  </tr>
+  {% empty %}<tr><td colspan="6">No payments yet.</td></tr>{% endfor %}
+</table>
+{% endif %}
+{% endblock %}

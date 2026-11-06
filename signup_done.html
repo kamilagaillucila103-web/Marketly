@@ -1,0 +1,9 @@
+{% extends 'market/base.html' %}
+{% block title %}Registration submitted · Marketly{% endblock %}
+{% block public_content %}
+<div class="login-wrap"><div class="login-card">
+  <div class="mark">✓</div><h1>Registration submitted</h1>
+  <p>Your vendor registration has been sent to the administrator for review. You cannot sign in until your account is approved.</p>
+  <a class="button" href="{% url 'login' %}">Back to sign in</a>
+</div></div>
+{% endblock %}

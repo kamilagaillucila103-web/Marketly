@@ -1,0 +1,72 @@
+{% extends 'market/base.html' %}
+
+{% block title %}Payment Verifications - Marketly{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <div>
+        <span class="eyebrow">Administrator</span>
+        <h1>Payment Verifications</h1>
+        <p>Review and verify the receipts submitted by vendors.</p>
+    </div>
+</div>
+
+<div class="card">
+    <div class="section-head">
+        <h2>Pending Payments</h2>
+    </div>
+
+    {% if pending_payments %}
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Vendor</th>
+                    <th>Amount</th>
+                    <th>Payment Type</th>
+                    <th>Date Submitted</th>
+                    <th>Receipt Image</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for payment in pending_payments %}
+                <tr>
+                    <td><strong>{{ payment.vendor.name }}</strong><br><small class="muted">{{ payment.vendor.contact_email }}</small></td>
+                    <td>₱{{ payment.amount }}</td>
+                    <td>{{ payment.payment_type|default:"N/A" }}</td>
+                    <td>{{ payment.created_at|date:"M d, Y - h:i A" }}</td>
+                    <td>
+                        {% if payment.receipt_image %}
+                            <a href="{{ payment.receipt_image.url }}" target="_blank">
+                                <img src="{{ payment.receipt_image.url }}" alt="Receipt" style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px; border: 1px solid var(--line);">
+                            </a>
+                        {% else %}
+                            <span class="muted">No image available</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div style="display: flex; gap: 8px;">
+                            <form action="{% url 'market:verify_payment' payment.id %}" method="post" style="display: inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="button" style="padding: 6px 12px; font-size: 13px;">Verify</button>
+                            </form>
+                            <form action="{% url 'market:reject_payment' payment.id %}" method="post" style="display: inline;" onsubmit="return confirm('Sigurado ka bang gusto mong i-reject ang bayad na ito?');">
+                                {% csrf_token %}
+                                <input type="hidden" name="rejection_reason" value="Hindi malinaw o hindi tugma ang resibo.">
+                                <button type="submit" class="button" style="padding: 6px 12px; font-size: 13px; background-color: var(--danger);">Reject</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty">
+        <p>There are no pending payments that need to be verified at this time</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

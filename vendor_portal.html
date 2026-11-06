@@ -1,0 +1,68 @@
+vendor portal
+
+{% extends "market/vendor_base.html" %}
+{% block title %}My account{% endblock %}
+{% block nav_account %}active{% endblock %}
+
+{% block content %}
+<div class="eyebrow">VENDOR PORTAL</div>
+<h1>Welcome, {% if vendor %}{{ vendor.name }}{% else %}{{ request.user.username }}{% endif %}</h1>
+<p class="sub">see your stalls, due dates, and balance.</p>
+
+{% if not vendor %}
+  <div class="card"><div class="empty">You don't have a vendor profile linked to this account. Please contact the market admin.</div></div>
+{% else %}
+
+  <div class="grid g3" style="margin-bottom:24px;">
+    <div class="card stat {% if summary.balance > 0 %}alert{% else %}ok{% endif %}">
+      <div class="lbl">Balance</div>
+      <div class="val">₱{{ summary.balance|floatformat:2 }}</div>
+      <div class="note">Natitirang babayaran</div>
+    </div>
+    <div class="card stat">
+      <div class="lbl">Next due date</div>
+      <div class="val">{% if summary.next_due %}{{ summary.next_due|date:"M j, Y" }}{% else %}—{% endif %}</div>
+      <div class="note">Susunod na petsa ng bayad</div>
+    </div>
+    <div class="card stat">
+      <div class="lbl">Monthly rent</div>
+      <div class="val">₱{{ summary.monthly_total|floatformat:2 }}</div>
+      <div class="note">{{ summary.rows|length }} active na stall</div>
+    </div>
+  </div>
+
+  <div class="grid g2">
+    <div class="card">
+      <h2>Your Stalls</h2>
+      {% if summary.rows %}
+      <table>
+        <thead><tr><th>Stall</th><th>Section</th><th>Monthly rent</th><th>Due date</th></tr></thead>
+        <tbody>
+        {% for r in summary.rows %}
+          <tr>
+            <td><strong>{{ r.stall }}</strong></td>
+            <td>{{ r.stall.section|default:"—" }}</td>
+            <td>₱{{ r.monthly_rent|floatformat:2 }}</td>
+            <td>{{ r.next_due|date:"M j, Y" }}<br><small style="color:var(--muted)">Every {{ r.due_day }}</small></td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+        <div class="empty">No active stalls found.</div>
+      {% endif %}
+    </div>
+
+    <div class="card">
+      <h2>Account Information</h2>
+      <div class="info-row"><span>Vendor name</span><span>{{ vendor.name }}</span></div>
+      <div class="info-row"><span>Username</span><span>{{ request.user.username }}</span></div>
+      <div class="info-row"><span>Email</span><span>{{ vendor.contact_email|default:"—" }}</span></div>
+      <div class="info-row"><span>Phone</span><span>{{ vendor.phone_number|default:"—" }}</span></div>
+      <div class="info-row"><span>Total na singil</span><span>₱{{ summary.total_charged|floatformat:2 }}</span></div>
+      <div class="info-row"><span>Total na nabayaran</span><span>₱{{ summary.total_paid|floatformat:2 }}</span></div>
+      <a class="btn" style="display:inline-block;text-decoration:none;" href="{% url 'market:vendor_payment' %}">Magbayad / Mag-upload ng resibo</a>
+    </div>
+  </div>
+{% endif %}
+{% endblock %}

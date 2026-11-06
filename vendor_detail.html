@@ -1,0 +1,66 @@
+{% extends "market/base.html" %}
+{% block content %}
+<h1>Vendor Dashboard: {{ object.full_name }}</h1>
+<p>
+  {% if object.business_name %}<b>{{ object.business_name }}</b> | {% endif %}
+  {{ object.contact_number|default:"no contact" }} | {{ object.email|default:"no email" }} | {{ object.address|default:"no address" }}
+  | {{ object.is_active|yesno:"Active,Inactive" }}
+</p>
+<p>
+  <a class="btn" href="{% url 'market:vendor_update' object.pk %}">Edit vendor</a>
+  <a class="btn" href="{% url 'market:vendor_delete' object.pk %}" style="background:#b3261e">Delete vendor</a>
+</p>
+<p>
+  {% if object.user %}<b>Login account:</b> {{ object.user.username }}
+  {% else %}No login yet. <a class="btn" href="{% url 'market:vendor_account' object.pk %}">Create login account</a>{% endif %}
+</p>
+
+<div class="cards">
+  <div class="card">Total balance<b {% if balance > 0 %}class="danger"{% endif %}>₱{{ balance }}</b>₱{{ total_due }} billed</div>
+  <div class="card">Total paid<b>₱{{ total_paid }}</b>{{ payments|length }} payment(s)</div>
+  <div class="card">Active leases<b>{{ active_count }}</b>{{ leases|length }} total</div>
+  <div class="card">Last payment method<b>{{ last_payment.get_method_display|default:"-" }}</b>{% if last_payment %}₱{{ last_payment.amount }} on {{ last_payment.date_paid }}{% endif %}</div>
+</div>
+
+<h2>Leases and balances</h2>
+<table>
+  <tr><th>Stall</th><th>Rate</th><th>Paid</th><th>Balance</th><th>Status</th><th>Actions</th></tr>
+  {% for l in leases %}
+  <tr>
+    <td><a href="{% url 'market:lease_detail' l.pk %}">{{ l.stall.code }}</a> ({{ l.stall.section }})</td>
+    <td>₱{{ l.monthly_rate }}</td><td>₱{{ l.total_paid }}</td>
+    <td {% if l.balance > 0 %}class="danger"{% endif %}>₱{{ l.balance }}</td>
+    <td>{{ l.is_active|yesno:"Active,Ended" }}</td>
+    <td>
+      {% if l.is_active %}<a href="{% url 'market:payment_create' %}?lease={{ l.pk }}">Collect</a> |{% endif %}
+      <a href="{% url 'market:lease_update' l.pk %}">Edit</a> |
+      <a href="{% url 'market:lease_delete' l.pk %}" style="color:#b3261e">Delete</a>
+    </td>
+  </tr>
+  {% empty %}<tr><td colspan="6">No leases yet. <a href="{% url 'market:lease_create' %}">Create one</a>.</td></tr>{% endfor %}
+</table>
+
+<h2>Payments by method</h2>
+<table>
+  <tr><th>Method</th><th>No. of payments</th><th>Total</th></tr>
+  {% for m in by_method %}
+  <tr><td>{{ m.label }}</td><td>{{ m.count }}</td><td>₱{{ m.total }}</td></tr>
+  {% empty %}<tr><td colspan="3">No payments yet.</td></tr>{% endfor %}
+</table>
+
+<h2>Payment history</h2>
+<table>
+  <tr><th>OR #</th><th>Date</th><th>Stall</th><th>Method</th><th>Amount</th><th>Actions</th></tr>
+  {% for p in payments %}
+  <tr>
+    <td><a href="{% url 'market:receipt' p.pk %}">{{ p.or_number }}</a></td><td>{{ p.date_paid }}</td>
+    <td>{{ p.lease.stall.code }}</td><td>{{ p.get_method_display }}</td><td>₱{{ p.amount }}</td>
+    <td>
+      <a href="{% url 'market:receipt' p.pk %}">Receipt</a> |
+      <a href="{% url 'market:payment_update' p.pk %}">Edit</a> |
+      <a href="{% url 'market:payment_delete' p.pk %}" style="color:#b3261e">Delete</a>
+    </td>
+  </tr>
+  {% empty %}<tr><td colspan="6">No payments yet.</td></tr>{% endfor %}
+</table>
+{% endblock %}
